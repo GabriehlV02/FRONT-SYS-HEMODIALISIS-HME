@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './login.css';
 
 const Icono = ({ children }: { children: string }) => (
   <span className="icono" aria-hidden="true">{children}</span>
@@ -7,33 +8,57 @@ const Icono = ({ children }: { children: string }) => (
 export function App() {
   const [sesion, setSesion] = useState(false);
   const [menuAbierto, setMenuAbierto] = useState(true);
+  const [mostrarClave, setMostrarClave] = useState(false);
+  const [usuario, setUsuario] = useState(() => {
+    try { return localStorage.getItem('hemodialisis-usuario') || 'admin'; }
+    catch { return 'admin'; }
+  });
+  const [recordar, setRecordar] = useState(true);
 
   if (!sesion) {
     return (
-      <main className="login">
-        <section className="login-panel">
-          <div className="marca">
-            <img src="/logo-hospital-contable-login.png" alt="Hospital María Esperanza" />
-            <div><strong>HME</strong><small>HEMODIÁLISIS</small></div>
-          </div>
-          <p className="etiqueta">ACCESO AL SISTEMA</p>
-          <h1>Bienvenido</h1>
-          <p className="descripcion">Ingresa al sistema de Hemodiálisis del Hospital María Esperanza.</p>
-          <label>Usuario<input defaultValue="administrador" /></label>
-          <label>Contraseña<input type="password" defaultValue="123456" /></label>
-          <button className="boton-primario" onClick={() => setSesion(true)}>
-            Iniciar sesión <span>→</span>
-          </button>
-          <small className="pie-login">Hospital María Esperanza · Sistema de Hemodiálisis</small>
-        </section>
-        <aside className="login-lateral">
-          <div>
-            <span className="cruz">✦</span>
-            <p>ATENCIÓN ESPECIALIZADA</p>
-            <h2>Control y cuidado en cada sesión.</h2>
-            <small>Plataforma institucional de Hemodiálisis.</small>
-          </div>
-        </aside>
+      <main className="hemo-login">
+        <div className="hemo-login-card">
+          <aside className="hemo-login-brand">
+            <img className="hemo-login-logo" src="/logo-hospital-contable-lila.png" alt="Hospital María Esperanza" />
+            <div className="hemo-login-copy">
+              <p className="hemo-login-eyebrow">ATENCIÓN ESPECIALIZADA</p>
+              <h2>Gestión de <br />hemodiálisis</h2>
+              <p className="hemo-login-description">Accede a la información de pacientes, sesiones y tratamientos del Hospital María Esperanza desde un solo lugar.</p>
+            </div>
+            <p className="hemo-login-footer">Hospital María Esperanza · Unidad de Hemodiálisis</p>
+          </aside>
+          <section className="hemo-login-access" aria-labelledby="login-title">
+            <form className="hemo-login-form" onSubmit={event => {
+              event.preventDefault();
+              try {
+                if (recordar) localStorage.setItem('hemodialisis-usuario', usuario);
+                else localStorage.removeItem('hemodialisis-usuario');
+              } catch { /* El acceso sigue disponible si el almacenamiento está restringido. */ }
+              setMostrarClave(false);
+              setSesion(true);
+            }}>
+              <p className="hemo-login-eyebrow">ACCESO AL SISTEMA DE HEMODIÁLISIS</p>
+              <h1 id="login-title">Iniciar sesión</h1>
+              <p className="hemo-login-subtitle">Ingresa tus credenciales para acceder al sistema.</p>
+              <label className="hemo-login-label" htmlFor="hemo-user">Usuario</label>
+              <div className="hemo-login-field">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="10" cy="7" r="3" /><path d="M3 21v-3a7 7 0 0 1 14 0v3H3ZM17 4a3 3 0 0 1 0 6m2 4a6 6 0 0 1 3 5v2h-3" /></svg>
+                <input id="hemo-user" name="username" autoComplete="username" value={usuario} onChange={event => setUsuario(event.target.value)} placeholder="Ingresa tu usuario" required />
+              </div>
+              <label className="hemo-login-label" htmlFor="hemo-password">Contraseña</label>
+              <div className="hemo-login-field">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" /></svg>
+                <input id="hemo-password" name="password" type={mostrarClave ? 'text' : 'password'} autoComplete="current-password" placeholder="Ingresa tu contraseña" required />
+                <button className="hemo-login-eye" type="button" aria-label={mostrarClave ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={mostrarClave} onClick={() => setMostrarClave(!mostrarClave)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />{mostrarClave && <path d="m3 3 18 18" />}</svg>
+                </button>
+              </div>
+              <label className="hemo-login-remember"><input type="checkbox" checked={recordar} onChange={event => setRecordar(event.target.checked)} />Recordar mi usuario</label>
+              <button className="hemo-login-submit" type="submit">Iniciar sesión <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></button>
+            </form>
+          </section>
+        </div>
       </main>
     );
   }
